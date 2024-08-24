@@ -1,0 +1,232 @@
+<?php
+require 'controler/db/db.php';
+require 'controler/db/controler.php';
+// Memanggil atau membutuhkan file function.php
+session_start();
+// Jika tidak bisa login maka balik ke login.php
+// jika masuk ke halaman ini melalui url, maka langsung menuju halaman login
+if (!isset($_SESSION['login'])) {
+  header('location:login.php');
+  exit;
+}
+
+if (isset($_POST['simpan'])) {
+    if (tambah_permintaan($_POST)) {
+        echo "<script>
+                alert('Data permintaan berhasil ditambahkan!');
+                document.location.href = 'permintaan.php';
+            </script>";
+    } else {
+        // Jika fungsi tambah jika data tidak tersimpan, maka munculkan alert dibawah
+        echo "<script>
+                alert('Data penerimaan gagal ditambahkan!');
+            </script>";
+    }
+}
+
+if (isset($_POST['update'])) {
+    if (update_permintaan($_POST) > 0) {
+        echo "<script>
+                alert('Data permintaan berhasil diubah!');
+                document.location.href = 'permintaan.php';
+            </script>";
+    } else {
+        // Jika fungsi ubah jika data tidak terubah, maka munculkan alert dibawah
+        echo "<script>
+                alert('Data cabang gagal diubah!');
+            </script>";
+    }
+}
+
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Tables - SB Admin</title>
+        <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
+        <link href="../css/styles.css" rel="stylesheet" />
+        <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    </head>
+
+    <body class="sb-nav-fixed">
+        <?php
+    include 'navbar-top.php';
+    ?>
+        <div id="layoutSidenav">
+            <div id="layoutSidenav_content">
+                <?php
+    include 'navbar.php';
+    ?>
+                <main>
+                    <div class="container-fluid px-4">
+                        <h1 class="mt-4">Data Permintaan Besek</h1>
+                        <br>
+                        <div class="form-row">
+                            <div class="col-md">
+                                <form action="" method="post" enctype="multipart/form-data">
+                                    <div class="my-2">
+                                        <div class="row">
+                                            <div class="col">
+                                                <label for="cabang" class="form-label">Cabang</label>
+                                                <input type="text" class="form-control" id="cabang" name="cabang">
+                                            </div>
+                                            <div class="col">
+                                                <label for="realisasi" class="form-label">Info</label>
+                                                <select id="realisasi" name="realisasi" class="form-control">
+                                                    <option value="Sudah">Sudah</option>
+                                                    <option value="Belum">Belum</option>
+                                                </select>
+                                            </div>
+                                            <div class="col">
+                                                <label for="antrian" class="form-label">Antrian</label>
+                                                <input type="text" class="form-control" id="antrian" name="antrian">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class=" my-2">
+                                        <div class="row">
+                                            <div class="col">
+                                                <label for="a" class="form-label">Permintaan M</label>
+                                                <input id="a" name="a" type="text" class="form-control">
+                                            </div>
+                                            <div class="col">
+                                                <label for="os" class="form-label">permintaan Os</label>
+                                                <input id="os" name="os" type="text" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col">
+                                                <label for="ok" class="form-label">Permintaan Ok</label>
+                                                <input id="ok" name="ok" type="text" class="form-control">
+                                            </div>
+                                            <div class="col">
+                                                <label for="ks" class="form-label">Permintaan KS</label>
+                                                <input id="ks" name="ks" type="text" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col">
+                                                <label for="kb" class="form-label">Permintaan K KB</label>
+                                                <input id="kb" name="kb" type="text" class="form-control">
+                                            </div>
+                                            <div class="col">
+                                                <label for="kks" class="form-label">Permintaan KKS</label>
+                                                <input id="kks" name="kks" type="text" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col">
+                                                <label for="kls" class="form-label">Permintaan KLS</label>
+                                                <input id="kls" name="kls" type="text" class="form-control">
+                                            </div>
+                                            <div class="col">
+                                                <label for="jadwal" class="form-label">Jadwal Kirim</label>
+                                                <select id="jadwal" name="jadwal" class="form-control">
+                                                    <option value="H1 16 Juni 2024">H1 16 Juni 2024</option>
+                                                    <option value="H2 17 Juni 2024">H2 17 Juni 2024</option>
+                                                    <option value="H3 18 Juni 2024">H3 18 Juni 2024</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary" name="simpan">Simpan</button>
+                                    <a href="export.php" target="_blank" class="btn btn-success ms-1"><i
+                                            class="bi bi-file-earmark-spreadsheet-fill"></i>&nbsp;Ekspor ke Excel</a>
+                                </form>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-table me-1"></i>
+                                Data Pealisasi Besek
+                            </div>
+                            <div class="card-body">
+                                <div class="row my-3">
+                                    <div class="col-md">
+                                        <table id="datatablesSimple"
+                                            class="table table-striped table-responsive table-hover text-left"
+                                            style="width:100%">
+                                            <thead>
+                                                <tr>
+                                                    <th>No. Antrian</th>
+                                                    <th>Cabang</th>
+                                                    <th>A</th>
+                                                    <th>Os</th>
+                                                    <th>Ok</th>
+                                                    <th>K Sapi</th>
+                                                    <th>K Kambing</th>
+                                                    <th>Kaki Sapi</th>
+                                                    <th>Kulit Sapi</th>
+                                                    <th>Status</th>
+                                                    <th>jadwal</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php $no = 1; ?>
+                                                <?php foreach ($view_permintaan as $row) : ?>
+                                                <tr>
+                                                    <td><?= $row['antrian']; ?></td>
+                                                    <td><?= $row['cabang']; ?></td>
+                                                    <td><?= $row['a']; ?></td>
+                                                    <td><?= $row['os']; ?></td>
+                                                    <td><?= $row['ok']; ?></td>
+                                                    <td><?= $row['ks']; ?></td>
+                                                    <td><?= $row['kb']; ?></td>
+                                                    <td><?= $row['kks']; ?></td>
+                                                    <td><?= $row['kls']; ?></td>
+                                                    <td><?= $row['realisasi']; ?></td>
+                                                    <td><?= $row['jadwal']; ?></td>
+                                                    <td>
+                                                        <a><?php include 'controler/permintaan.php'; ?></a>
+                                                    </td>
+                                                </tr>
+                                                <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+                <footer class="py-4 bg-light mt-auto">
+                    <div class="container-fluid px-4">
+                        <div class="d-flex align-items-center justify-content-between small">
+                            <div class="text-muted">Copyright &copy; Your Website 2023</div>
+                            <div>
+                                <a href="#">Privacy Policy</a>
+                                &middot;
+                                <a href="#">Terms &amp; Conditions</a>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+            crossorigin="anonymous"></script>
+        <script src="../js/scripts.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"
+            crossorigin="anonymous"></script>
+        <script src="../js/datatables-simple-demo.js"></script>
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
+        </script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
+        </script>
+    </body>
+
+</html>
